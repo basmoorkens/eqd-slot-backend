@@ -1,1 +1,1 @@
-# eqd-slot-backend
+# eqd-slots-backend
