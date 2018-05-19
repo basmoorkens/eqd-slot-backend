@@ -4,6 +4,7 @@ import com.basm.slots.config.SlotsProperties;
 import com.basm.slots.model.OutgoingPlayerWalletTransaction;
 import com.basm.slots.model.PlayerWallet;
 import com.basm.slots.model.PlayerWalletTransaction;
+import com.basm.slots.model.TransactionStatus;
 import com.basm.slots.repository.PlayerWalletRepository;
 import com.basm.slots.repository.OutgoingPlayerWalletTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,6 @@ public class PlayerWalletService {
     }
 
     public List<OutgoingPlayerWalletTransaction> findLast10OutgoingTransactionsForPublicKey(final String publicKey) {
-        return playerWalletTransactionRepository.findLastOutgoingTransactionsForPublicKey(publicKey, (new PageRequest(0,10)));
+        return playerWalletTransactionRepository.findLastOutgoingTransactionsForPublicKey(publicKey,TransactionStatus.DONE, (new PageRequest(0,10)));
     }
 }

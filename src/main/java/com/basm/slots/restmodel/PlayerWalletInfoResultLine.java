@@ -5,31 +5,13 @@ import java.util.Date;
 
 public class PlayerWalletInfoResultLine implements Serializable {
 
-    private Date wonTime;
-
-    private Date processedTime;
+    private String wonTime;
 
     private String status;
 
     private Double amount;
 
     private String blockchainHash;
-
-    public Date getWonTime() {
-        return wonTime;
-    }
-
-    public void setWonTime(Date wonTime) {
-        this.wonTime = wonTime;
-    }
-
-    public Date getProcessedTime() {
-        return processedTime;
-    }
-
-    public void setProcessedTime(Date processedTime) {
-        this.processedTime = processedTime;
-    }
 
     public String getStatus() {
         return status;
@@ -53,5 +35,13 @@ public class PlayerWalletInfoResultLine implements Serializable {
 
     public void setBlockchainHash(String blockchainHash) {
         this.blockchainHash = blockchainHash;
+    }
+
+    public String getWonTime() {
+        return wonTime;
+    }
+
+    public void setWonTime(String wonTime) {
+        this.wonTime = wonTime;
     }
 }

@@ -40,6 +40,9 @@ public class SlotsController {
 
     @RequestMapping(value = "/playslots", method =  RequestMethod.POST)
     public SlotResult playSlots(@RequestParam(value="publicKey") final String publicKey) throws Exception {
-        return slotsService.playSlots(publicKey);
+        log.info("Spinning slot for " + publicKey);
+        SlotResult result = slotsService.playSlots(publicKey);
+        log.info(publicKey + " won " + result.getAmount());
+        return result;
     }
 }
