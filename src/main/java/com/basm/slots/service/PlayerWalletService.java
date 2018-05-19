@@ -7,11 +7,13 @@ import com.basm.slots.model.PlayerWalletTransaction;
 import com.basm.slots.repository.PlayerWalletRepository;
 import com.basm.slots.repository.OutgoingPlayerWalletTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.TransactionScoped;
+import java.util.List;
 
 @Service("PlayerWalletService")
 public class PlayerWalletService {
@@ -57,5 +59,9 @@ public class PlayerWalletService {
 
     public Double getOpenPlayersBalanceToPay() {
         return playerWalletTransactionRepository.findUnprocessedOutgoingTransactionsAmountToPay();
+    }
+
+    public List<OutgoingPlayerWalletTransaction> findLast10OutgoingTransactionsForPublicKey(final String publicKey) {
+        return playerWalletTransactionRepository.findLastOutgoingTransactionsForPublicKey(publicKey, (new PageRequest(0,10)));
     }
 }

@@ -15,4 +15,7 @@ public interface OutgoingPlayerWalletTransactionRepository extends CrudRepositor
 
     @Query("SELECT coalesce(SUM(t.amount), 0) FROM OutgoingPlayerWalletTransaction t where t.transactionStatus NOT IN (com.basm.slots.model.TransactionStatus.DONE) ")
     public Double findUnprocessedOutgoingTransactionsAmountToPay();
+
+    @Query("SELECT t FROM OutgoingPlayerWalletTransaction t where t.publicKey = :publicKey ORDER by t.id DESC ")
+    public List<OutgoingPlayerWalletTransaction> findLastOutgoingTransactionsForPublicKey(final String publicKey, Pageable pageable);
 }
