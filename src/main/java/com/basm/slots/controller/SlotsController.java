@@ -37,7 +37,7 @@ public class SlotsController {
         }
         return playerWalletInfo;
     }
-
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     @RequestMapping(value = "/playslots", method =  RequestMethod.POST)
     public SlotResult playSlots(@RequestParam(value="publicKey") final String publicKey) throws Exception {
         log.info("Spinning slot for " + publicKey);
