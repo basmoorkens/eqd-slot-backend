@@ -1,1 +1,1 @@
-sudo docker run -d eqd-slots
+sudo docker run -p 8080:8080 -d eqd-slots
