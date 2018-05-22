@@ -49,7 +49,7 @@ public class PayoutJob {
         } catch (Exception e) {
             tx.markFailed("Failed to process TX, see the logs for more details");
             playerWalletTransactionRepository.save(tx);
-            log.error("Failed processing payment " + tx.getId() + " - " + tx.getPublicKey() + " - " + tx.getAmount());
+            log.error("Failed processing payment " + tx.getId() + " - " + tx.getPublicKey() + " - " + tx.getAmount(), e);
         }
     }
 }
