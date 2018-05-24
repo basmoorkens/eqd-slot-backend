@@ -1,6 +1,7 @@
 package com.basm.slots.service;
 
 import com.basm.slots.job.IncomingFundsJob;
+import com.basm.slots.model.PlayerWallet;
 import com.basm.slots.model.SlotResult;
 import com.basm.slots.model.SlotResultFactory;
 import org.slf4j.Logger;
@@ -32,8 +33,9 @@ public class SlotService {
 	    if(publicKey == null || publicKey.isEmpty()) {
 	        throw new RuntimeException("Can not play without providing a public key");
         }
-        if(playerWalletService.hasEnoughFundsInEscrowWalletToPlay(publicKey)) {
-            return doPlaySlots(publicKey);
+        PlayerWallet playerWallet = playerWalletService.findPlayerWalletByPublicKey(publicKey);
+        if(playerWalletService.hasEnoughFundsInEscrowWalletToPlay(playerWallet)) {
+            return doPlaySlots(playerWallet);
         } else {
 	        throw new RuntimeException("Not enough funds to play");
         }
@@ -42,16 +44,16 @@ public class SlotService {
     /**
      * Fetches the next slot result. Create a DB record for a new outgoing transaction for the player.
      * Deduct the cost to play from the player wallet. Deduct the winnings from the game wallet and save all the state.
-     * @param publicKey The publickey to add to the new outgoing transaction record.
-     * @return          The slotresult to return to the frontend.
+     * @param playerWallet The playerwallet to credit
+     * @return             The slotresult to return to the frontend.
      */
 	@Transactional(propagation = Propagation.REQUIRED)
-    public SlotResult doPlaySlots(String publicKey)  {
+    public SlotResult doPlaySlots(PlayerWallet playerWallet)  {
         SlotResult result  = null;
         int counter = 1;
         do {
             try {
-                result = getNextSlotResult(calculateTrueWalletAmount(stellarService.getAvailableAmountInSlotsWallet()));
+                result = getNextSlotResult(calculateTrueWalletAmount(stellarService.getAvailableAmountInSlotsWallet()),playerWallet);
             } catch (IOException e2) {
                 if(counter <= 5) { //retry 5 times if horizon is being a bitch again...
                     log.warn("IOException when fetching wallet for playing slots, retrying " + counter + " time");
@@ -61,12 +63,22 @@ public class SlotService {
                 }
             }
         } while (result == null);
-        playerWalletService.registerPlayerWinnings(publicKey, result.getAmount());
+        playerWalletService.registerPlayerWinnings(playerWallet.getPublicKey(), result.getAmount());
         return result;
     }
 
-    private SlotResult getNextSlotResult(double inGameWallet) {
+    private SlotResult getNextSlotResult(double inGameWallet, PlayerWallet playerWallet) {
         double finalAmount = calculateTrueWalletAmount(inGameWallet);
+        if(playerWallet.isFirstTimer()) {
+            playerWallet.setFirstTimer(false);
+            playerWalletService.update(playerWallet);
+            return  slotResultFactory.getResultX10();
+        } else {
+            return normalSpin(finalAmount);
+        }
+	}
+
+	private SlotResult normalSpin(double finalAmount) {
         for(SlotResult result : slotResultFactory.getSlotResultsReversed()) {
             if(finalAmount >= result.getAmount()) {
                 if(randomGenerator.nextInt(result.getRandomness())< 1) {
@@ -75,7 +87,7 @@ public class SlotService {
             }
         }
         return slotResultFactory.getResultX01();
-	}
+    }
 
     private double calculateTrueWalletAmount(double inGameWallet) {
         double finalAmount = inGameWallet;

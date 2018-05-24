@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.TransactionScoped;
 import java.util.List;
 
 @Service("PlayerWalletService")
@@ -28,11 +27,7 @@ public class PlayerWalletService {
     @Autowired
     private SlotsProperties slotsProperties;
 
-    public boolean hasEnoughFundsInEscrowWalletToPlay(final String publicKey) {
-        PlayerWallet playerWallet = findPlayerWalletForPublicKey(publicKey);
-        if(playerWallet == null ) {
-            throw new RuntimeException("Publickey is not known in the slots application");
-        }
+    public boolean hasEnoughFundsInEscrowWalletToPlay(final PlayerWallet playerWallet) {
         return playerWallet.getBalance() > slotsProperties.getAmountToSpin();
     }
 
@@ -47,6 +42,14 @@ public class PlayerWalletService {
     public double getFundsForPublicKey(final String publicKey) {
         PlayerWallet playerWallet = findPlayerWalletForPublicKey(publicKey);
         return playerWallet.getBalance();
+    }
+
+    public PlayerWallet findPlayerWalletByPublicKey(final String publicKey) {
+        PlayerWallet playerWallet = playerWalletRepository.findByPublicKey(publicKey);
+        if(playerWallet == null ) {
+            throw new RuntimeException("The player with publickey " + publicKey + " is not known in the slots application");
+        }
+        return playerWallet;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -64,5 +67,9 @@ public class PlayerWalletService {
 
     public List<OutgoingPlayerWalletTransaction> findLast10OutgoingTransactionsForPublicKey(final String publicKey) {
         return playerWalletTransactionRepository.findLastOutgoingTransactionsForPublicKey(publicKey,TransactionStatus.DONE, (new PageRequest(0,10)));
+    }
+
+    public PlayerWallet update(PlayerWallet playerWallet) {
+        return playerWalletRepository.save(playerWallet);
     }
 }
