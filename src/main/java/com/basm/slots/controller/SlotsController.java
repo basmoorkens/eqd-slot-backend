@@ -1,8 +1,9 @@
 package com.basm.slots.controller;
 
+import com.basm.slots.model.OutgoingPlayerWalletStellarTransaction;
 import com.basm.slots.model.PlayerWallet;
-import com.basm.slots.model.SlotResult;
 import com.basm.slots.model.SlotWinning;
+import com.basm.slots.restmodel.Payout;
 import com.basm.slots.restmodel.PlayerWalletInfo;
 import com.basm.slots.restmodel.PlayerWalletInfoWinning;
 import com.basm.slots.restmodel.SpinResultInfo;
@@ -56,5 +57,13 @@ public class SlotsController {
         log.info(publicKey + " won " + winning.getAmount());
         SpinResultInfo resultInfo = new SpinResultInfo(winning);
         return resultInfo;
+    }
+
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @RequestMapping(value = "/playslots", method =  RequestMethod.POST)
+    public Payout payout(@RequestParam(value="publicKey") final String publicKey, final double amount) throws Exception {
+        log.info("Payout request for " + publicKey + " with amount " + amount);
+        OutgoingPlayerWalletStellarTransaction tx = playerWalletService.createPayout(publicKey, amount);
+        return new Payout(tx.getPublicKey(), tx.getAmount());
     }
 }

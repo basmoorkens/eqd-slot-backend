@@ -5,6 +5,8 @@ import com.basm.slots.model.*;
 import com.basm.slots.repository.PlayerWalletRepository;
 import com.basm.slots.repository.OutgoingPlayerWalletTransactionRepository;
 import com.basm.slots.repository.SlotWinningRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import java.util.List;
 @Service("PlayerWalletService")
 public class PlayerWalletService {
 
+    private final Logger log = LoggerFactory.getLogger(PlayerWalletService.class);
+
     @Autowired
     private PlayerWalletRepository playerWalletRepository;
 
@@ -25,16 +29,11 @@ public class PlayerWalletService {
     @Autowired
     private SlotsProperties slotsProperties;
 
+    @Autowired
+    private OutgoingPlayerWalletTransactionRepository outgoingPlayerWalletTransactionRepository;
+
     public boolean hasEnoughFundsInEscrowWalletToPlay(final PlayerWallet playerWallet) {
         return playerWallet.getBalance() > slotsProperties.getAmountToSpin();
-    }
-
-    private PlayerWallet findPlayerWalletForPublicKey(final String publicKey) {
-        PlayerWallet wallet = playerWalletRepository.findByPublicKey(publicKey);
-        if(wallet == null) {
-            throw new RuntimeException("No player found for publicKey " + publicKey + ". To register your public key simply send EQD from your wallet to the game wallet.");
-        }
-        return wallet;
     }
 
     public PlayerWallet findPlayerWalletByPublicKey(final String publicKey) {
@@ -47,7 +46,7 @@ public class PlayerWalletService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public SlotWinning registerPlayerWinnings(final String publicKey, final double amount) {
-        PlayerWallet playerWallet = findPlayerWalletForPublicKey(publicKey);
+        PlayerWallet playerWallet = findPlayerWalletByPublicKey(publicKey);
         double amountToAddToPlayerWallet = amount - slotsProperties.getAmountToSpin();
         playerWallet.setBalance(playerWallet.getBalance() + amountToAddToPlayerWallet);
         SlotWinning winning = SlotWinning.createNewWinning(amount, playerWallet);
@@ -62,6 +61,20 @@ public class PlayerWalletService {
 
     public List<SlotWinning> findLast10WinningsForPlayerWallet(final PlayerWallet playerWallet) {
         return slotWinningRepository.findLast10WinningsForWallet(playerWallet, (new PageRequest(0,10)));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public OutgoingPlayerWalletStellarTransaction createPayout(final String publicKey, final double amount) {
+        PlayerWallet playerWallet = findPlayerWalletByPublicKey(publicKey);
+        if(playerWallet.getBalance() < amount) {
+            throw new RuntimeException("You don't have sufficient funds in your wallet to withdraw " + amount);
+        }
+        OutgoingPlayerWalletStellarTransaction transaction = OutgoingPlayerWalletStellarTransaction.buildOutgoing(amount, publicKey);
+        outgoingPlayerWalletTransactionRepository.save(transaction);
+        playerWallet.setBalance(playerWallet.getBalance()-amount);
+        playerWalletRepository.save(playerWallet);
+        log.info("Created payout for " + publicKey + " - " +amount);
+        return transaction;
     }
 
     public PlayerWallet update(PlayerWallet playerWallet) {

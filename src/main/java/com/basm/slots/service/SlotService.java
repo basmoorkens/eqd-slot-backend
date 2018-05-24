@@ -50,23 +50,28 @@ public class SlotService {
      */
 	@Transactional(propagation = Propagation.REQUIRED)
     public SlotWinning doPlaySlots(PlayerWallet playerWallet)  {
-        SlotResult result  = null;
-        int counter = 1;
-        do {
-            try {
-                result = getNextSlotResult(stellarService.getAvailableAmountInSlotsWallet(),playerWallet);
-            } catch (IOException e2) {
-                if(counter <= 5) { //retry 5 times if horizon is being a bitch again...
-                    log.warn("IOException when fetching wallet for playing slots, retrying " + counter + " time");
-                } else {
-                    log.error("IOexception fetching wallet balance",e2);
-                    throw new RuntimeException("Stellar network currently unavailable.");
+        try {
+            SlotResult result = null;
+            int counter = 1;
+            do {
+                try {
+                    result = getNextSlotResult(stellarService.getAvailableAmountInSlotsWallet(), playerWallet);
+                } catch (IOException e2) {
+                    if (counter <= 5) { //retry 5 times if horizon is being a bitch again...
+                        log.warn("IOException when fetching wallet for playing slots, retrying " + counter + " time");
+                    } else {
+                        log.error("IOexception fetching wallet balance", e2);
+                        throw new RuntimeException("Stellar network currently unavailable.");
+                    }
                 }
-            }
-        } while (result == null);
-        SlotWinning winning =  playerWalletService.registerPlayerWinnings(playerWallet.getPublicKey(), result.getAmount());
-        winning.setSlotFollowNumber(result.getFollowNumber());
-        return winning;
+            } while (result == null);
+            SlotWinning winning = playerWalletService.registerPlayerWinnings(playerWallet.getPublicKey(), result.getAmount());
+            winning.setSlotFollowNumber(result.getFollowNumber());
+            return winning;
+        } catch (Exception e) {
+            log.error("An unexpected exception occurred whilst spinning", e);
+            throw new RuntimeException("An unexpected exception occurred, if this keeps happening contact the our support.");
+        }
     }
 
     private SlotResult getNextSlotResult(double inGameWallet, PlayerWallet playerWallet) {
