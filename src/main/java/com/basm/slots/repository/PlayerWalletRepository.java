@@ -8,4 +8,7 @@ public interface PlayerWalletRepository extends CrudRepository<PlayerWallet, Lon
 
     public PlayerWallet findByPublicKey(final String publicKey);
 
+    @Query("SELECT coalesce(SUM(w.balance), 0) FROM PlayerWallet w ")
+    public Double getAllOpenPlayerWalletBalances();
+
 }

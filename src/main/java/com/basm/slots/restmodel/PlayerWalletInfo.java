@@ -10,18 +10,18 @@ public class PlayerWalletInfo implements Serializable {
 
     private String publicKey;
 
-    private List<PlayerWalletInfoResultLine> lastResults;
+    private List<PlayerWalletInfoWinning> lastWinnings;
 
     public PlayerWalletInfo(final String publicKey, final double amount) {
         this.amount = amount;
         this.publicKey = publicKey;
     }
 
-    public void addResult(PlayerWalletInfoResultLine result ) {
-        if(this.lastResults == null ) {
-            lastResults = new ArrayList<>();
+    public void addResult(PlayerWalletInfoWinning result ) {
+        if(this.lastWinnings == null ) {
+            lastWinnings = new ArrayList<>();
         }
-        lastResults.add(result);
+        lastWinnings.add(result);
     }
 
     public String getPublicKey() {
@@ -40,11 +40,11 @@ public class PlayerWalletInfo implements Serializable {
         this.amount = amount;
     }
 
-    public List<PlayerWalletInfoResultLine> getLastResults() {
-        return lastResults;
+    public List<PlayerWalletInfoWinning> getLastWinnings() {
+        return lastWinnings;
     }
 
-    public void setLastResults(List<PlayerWalletInfoResultLine> lastResults) {
-        this.lastResults = lastResults;
+    public void setLastWinnings(List<PlayerWalletInfoWinning> lastWinnings) {
+        this.lastWinnings = lastWinnings;
     }
 }

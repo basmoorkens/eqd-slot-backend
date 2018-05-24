@@ -5,7 +5,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="incoming_player_wallet_transaction")
-public class IncomingPlayerWalletTransaction extends PlayerWalletTransaction {
+public class IncomingPlayerWalletStellarTransaction extends PlayerWalletStellarTransaction {
 
     private String pagingToken;
 

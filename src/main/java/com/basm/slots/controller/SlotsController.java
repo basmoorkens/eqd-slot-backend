@@ -1,16 +1,19 @@
 package com.basm.slots.controller;
 
-import com.basm.slots.model.OutgoingPlayerWalletTransaction;
+import com.basm.slots.model.PlayerWallet;
 import com.basm.slots.model.SlotResult;
+import com.basm.slots.model.SlotWinning;
 import com.basm.slots.restmodel.PlayerWalletInfo;
+import com.basm.slots.restmodel.PlayerWalletInfoWinning;
+import com.basm.slots.restmodel.SpinResultInfo;
 import com.basm.slots.service.PlayerWalletService;
 import com.basm.slots.service.SlotService;
-import com.basm.slots.util.OutgoingTxToPlayerWalletInfoResultConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @RestController
@@ -29,20 +32,29 @@ public class SlotsController {
     @RequestMapping(value = "/loginPublicKey", method = RequestMethod.POST)
     public PlayerWalletInfo loginPublicKey(@RequestParam(value="publicKey") final String publicKey) {
         log.info("Logging in " + publicKey);
-        PlayerWalletInfo playerWalletInfo = new PlayerWalletInfo(publicKey, playerWalletService.getFundsForPublicKey(publicKey));
-        List<OutgoingPlayerWalletTransaction> outgoingPlayerWalletTransactionList = playerWalletService.findLast10OutgoingTransactionsForPublicKey(publicKey);
-        OutgoingTxToPlayerWalletInfoResultConverter converter = new OutgoingTxToPlayerWalletInfoResultConverter();
-        for(OutgoingPlayerWalletTransaction tx : outgoingPlayerWalletTransactionList) {
-            playerWalletInfo.addResult(converter.convert(tx));
-        }
+        PlayerWallet playerWallet = playerWalletService.findPlayerWalletByPublicKey(publicKey);
+        PlayerWalletInfo playerWalletInfo = new PlayerWalletInfo(publicKey, playerWallet.getBalance());
+        buildLastWinningsInfo(playerWallet, playerWalletInfo);
+
         return playerWalletInfo;
     }
+
+    private void buildLastWinningsInfo(PlayerWallet playerWallet, PlayerWalletInfo playerWalletInfo) {
+        List<SlotWinning> last10Winnings = playerWalletService.findLast10WinningsForPlayerWallet(playerWallet);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for(SlotWinning winning : last10Winnings) {
+            PlayerWalletInfoWinning pWinning = new PlayerWalletInfoWinning(sdf.format(winning.getCreatedDate()), winning.getAmount());
+            playerWalletInfo.addResult(pWinning);
+        }
+    }
+
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @RequestMapping(value = "/playslots", method =  RequestMethod.POST)
-    public SlotResult playSlots(@RequestParam(value="publicKey") final String publicKey) throws Exception {
+    public SpinResultInfo playSlots(@RequestParam(value="publicKey") final String publicKey) throws Exception {
         log.info("Spinning slot for " + publicKey);
-        SlotResult result = slotsService.playSlots(publicKey);
-        log.info(publicKey + " won " + result.getAmount());
-        return result;
+        SlotWinning winning = slotsService.playSlots(publicKey);
+        log.info(publicKey + " won " + winning.getAmount());
+        SpinResultInfo resultInfo = new SpinResultInfo(winning);
+        return resultInfo;
     }
 }

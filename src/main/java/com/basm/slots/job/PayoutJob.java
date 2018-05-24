@@ -1,7 +1,6 @@
 package com.basm.slots.job;
 
-import com.basm.slots.model.OutgoingPlayerWalletTransaction;
-import com.basm.slots.model.PlayerWalletTransaction;
+import com.basm.slots.model.OutgoingPlayerWalletStellarTransaction;
 import com.basm.slots.repository.OutgoingPlayerWalletTransactionRepository;
 import com.basm.slots.service.StellarService;
 import org.slf4j.Logger;
@@ -28,16 +27,16 @@ public class PayoutJob {
     public void payOutstandingBalances() {
     log.info("Running payment job");
     long startTime = System.currentTimeMillis();
-    List<OutgoingPlayerWalletTransaction> openTransactions = playerWalletTransactionRepository.findUnprocessedOutgoingTransactions(new PageRequest(0,20));
+    List<OutgoingPlayerWalletStellarTransaction> openTransactions = playerWalletTransactionRepository.findUnprocessedOutgoingTransactions(new PageRequest(0,20));
     log.info("Found " + openTransactions.size() + " open outgoing transactions");
 
-    for(OutgoingPlayerWalletTransaction tx : openTransactions) {
+    for(OutgoingPlayerWalletStellarTransaction tx : openTransactions) {
         processOutgoingTransaction(tx);
     }
     log.info("Paid out " + openTransactions.size() + " open transactions in " + (System.currentTimeMillis() - startTime) + " ms");
     }
 
-    private void processOutgoingTransaction(OutgoingPlayerWalletTransaction tx) {
+    private void processOutgoingTransaction(OutgoingPlayerWalletStellarTransaction tx) {
         tx.markProcessing();
         tx = playerWalletTransactionRepository.save(tx);
         try {

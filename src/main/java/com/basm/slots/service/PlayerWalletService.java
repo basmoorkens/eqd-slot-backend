@@ -1,12 +1,10 @@
 package com.basm.slots.service;
 
 import com.basm.slots.config.SlotsProperties;
-import com.basm.slots.model.OutgoingPlayerWalletTransaction;
-import com.basm.slots.model.PlayerWallet;
-import com.basm.slots.model.PlayerWalletTransaction;
-import com.basm.slots.model.TransactionStatus;
+import com.basm.slots.model.*;
 import com.basm.slots.repository.PlayerWalletRepository;
 import com.basm.slots.repository.OutgoingPlayerWalletTransactionRepository;
+import com.basm.slots.repository.SlotWinningRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,7 +20,7 @@ public class PlayerWalletService {
     private PlayerWalletRepository playerWalletRepository;
 
     @Autowired
-    private OutgoingPlayerWalletTransactionRepository playerWalletTransactionRepository;
+    private SlotWinningRepository slotWinningRepository;
 
     @Autowired
     private SlotsProperties slotsProperties;
@@ -39,34 +37,31 @@ public class PlayerWalletService {
         return wallet;
     }
 
-    public double getFundsForPublicKey(final String publicKey) {
-        PlayerWallet playerWallet = findPlayerWalletForPublicKey(publicKey);
-        return playerWallet.getBalance();
-    }
-
     public PlayerWallet findPlayerWalletByPublicKey(final String publicKey) {
         PlayerWallet playerWallet = playerWalletRepository.findByPublicKey(publicKey);
         if(playerWallet == null ) {
-            throw new RuntimeException("The player with publickey " + publicKey + " is not known in the slots application");
+            throw new RuntimeException("The player with publickey " + publicKey + " is not known in the slots application. Please read the instructions on how to create an account.");
         }
         return playerWallet;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void registerPlayerWinnings(final String publicKey, final double amount) {
+    public SlotWinning registerPlayerWinnings(final String publicKey, final double amount) {
         PlayerWallet playerWallet = findPlayerWalletForPublicKey(publicKey);
-        playerWallet.setBalance(playerWallet.getBalance()-slotsProperties.getAmountToSpin());
-        OutgoingPlayerWalletTransaction transaction = PlayerWalletTransaction.buildOutgoing(amount, publicKey);
-        playerWalletTransactionRepository.save(transaction);
+        double amountToAddToPlayerWallet = amount - slotsProperties.getAmountToSpin();
+        playerWallet.setBalance(playerWallet.getBalance() + amountToAddToPlayerWallet);
+        SlotWinning winning = SlotWinning.createNewWinning(amount, playerWallet);
+        slotWinningRepository.save(winning);
         playerWalletRepository.save(playerWallet);
+        return winning;
     }
 
-    public Double getOpenPlayersBalanceToPay() {
-        return playerWalletTransactionRepository.findUnprocessedOutgoingTransactionsAmountToPay();
+    public double getOpenPlayersBalanceToPay() {
+        return playerWalletRepository.getAllOpenPlayerWalletBalances();
     }
 
-    public List<OutgoingPlayerWalletTransaction> findLast10OutgoingTransactionsForPublicKey(final String publicKey) {
-        return playerWalletTransactionRepository.findLastOutgoingTransactionsForPublicKey(publicKey,TransactionStatus.DONE, (new PageRequest(0,10)));
+    public List<SlotWinning> findLast10WinningsForPlayerWallet(final PlayerWallet playerWallet) {
+        return slotWinningRepository.findLast10WinningsForWallet(playerWallet, (new PageRequest(0,10)));
     }
 
     public PlayerWallet update(PlayerWallet playerWallet) {

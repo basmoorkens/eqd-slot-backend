@@ -1,8 +1,8 @@
 package com.basm.slots.service;
 
 import com.basm.slots.config.SlotsProperties;
-import com.basm.slots.model.IncomingPlayerWalletTransaction;
-import com.basm.slots.model.PlayerWalletTransaction;
+import com.basm.slots.model.IncomingPlayerWalletStellarTransaction;
+import com.basm.slots.model.PlayerWalletStellarTransaction;
 import com.basm.slots.model.StatefulConfiguration;
 import com.basm.slots.repository.OutgoingPlayerWalletTransactionRepository;
 import org.slf4j.Logger;
@@ -19,7 +19,6 @@ import org.stellar.sdk.responses.operations.PaymentOperationResponse;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +71,7 @@ public class StellarService {
      * @return              The generated transaction hash on the blockchain
      * @throws IOException  When an exception occurs trying to write to the stellar network.
      */
-    public String processOpenPaymentTransaction(final PlayerWalletTransaction openTx) throws IOException {
+    public String processOpenPaymentTransaction(final PlayerWalletStellarTransaction openTx) throws IOException {
         AccountResponse escrowWallet = getEscrowWallet();
         KeyPair destination = buildAndCheckDestinationWallet(openTx.getPublicKey());
         Transaction transaction = new Transaction.Builder(escrowWallet)
@@ -98,8 +97,8 @@ public class StellarService {
         }
     }
 
-    public List<IncomingPlayerWalletTransaction> scanForUnprocessedIncomingPayments(StatefulConfiguration statefulConfiguration) throws IOException {
-        List<IncomingPlayerWalletTransaction> playerWalletTransactions = new ArrayList<>();
+    public List<IncomingPlayerWalletStellarTransaction> scanForUnprocessedIncomingPayments(StatefulConfiguration statefulConfiguration) throws IOException {
+        List<IncomingPlayerWalletStellarTransaction> playerWalletTransactions = new ArrayList<>();
         int txScanCounter = 0;
         for(int i = 0; i < 5; i++) {//run 5 times coz paging is broken on stellar side...
             PaymentsRequestBuilder paymentsRequestBuilder = stellarServer.payments().forAccount(escrowKeypair);
@@ -119,15 +118,15 @@ public class StellarService {
 
     }
 
-    private int processPage(List<IncomingPlayerWalletTransaction> playerWalletTransactions, Page<OperationResponse> responsePage) {
+    private int processPage(List<IncomingPlayerWalletStellarTransaction> playerWalletTransactions, Page<OperationResponse> responsePage) {
         int txCounter = 0;
         for(OperationResponse response : responsePage.getRecords()) {
             txCounter++;
             if(isIncomingTransaction(response)) {
                 PaymentOperationResponse payment = (PaymentOperationResponse) response;
                 if(isTokenFromApplication(payment.getAsset())) {
-                    IncomingPlayerWalletTransaction playerWalletTransaction = PlayerWalletTransaction.buildIncoming(Double.parseDouble(payment.getAmount()), payment.getFrom().getAccountId(), payment.getTransactionHash());
-                    ((IncomingPlayerWalletTransaction) playerWalletTransaction).setPagingToken(payment.getPagingToken());
+                    IncomingPlayerWalletStellarTransaction playerWalletTransaction = PlayerWalletStellarTransaction.buildIncoming(Double.parseDouble(payment.getAmount()), payment.getFrom().getAccountId(), payment.getTransactionHash());
+                    ((IncomingPlayerWalletStellarTransaction) playerWalletTransaction).setPagingToken(payment.getPagingToken());
                     playerWalletTransactions.add(playerWalletTransaction);
                 }
             } else {

@@ -13,10 +13,10 @@ public class SlotResultFactory {
 
     public  SlotResultFactory() {
         resultX01 = new SlotResult(10, 1,0);
-        resultX1 = new SlotResult(100, 10,1);
-        resultX5 = new SlotResult(500, 20,2);
-        resultX10 = new SlotResult(1000, 30,3);
-        resultX50 = new SlotResult(5000, 100,4);
+        resultX1 = new SlotResult(100, 7,1);
+        resultX5 = new SlotResult(500, 16,2);
+        resultX10 = new SlotResult(1000, 25,3);
+        resultX50 = new SlotResult(5000, 80,4);
     }
 
     public List<SlotResult> getSlotResults() {

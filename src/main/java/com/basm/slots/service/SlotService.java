@@ -4,6 +4,7 @@ import com.basm.slots.job.IncomingFundsJob;
 import com.basm.slots.model.PlayerWallet;
 import com.basm.slots.model.SlotResult;
 import com.basm.slots.model.SlotResultFactory;
+import com.basm.slots.model.SlotWinning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import java.util.Random;
 @Service
 public class SlotService {
 
-    private final Logger log = LoggerFactory.getLogger(IncomingFundsJob.class);
+    private final Logger log = LoggerFactory.getLogger(SlotService.class);
 
     @Autowired
     private StellarService stellarService;
@@ -29,7 +30,7 @@ public class SlotService {
 
     private SlotResultFactory slotResultFactory = new SlotResultFactory();
 
-	public SlotResult playSlots(final String publicKey)  {
+	public SlotWinning playSlots(final String publicKey)  {
 	    if(publicKey == null || publicKey.isEmpty()) {
 	        throw new RuntimeException("Can not play without providing a public key");
         }
@@ -48,12 +49,12 @@ public class SlotService {
      * @return             The slotresult to return to the frontend.
      */
 	@Transactional(propagation = Propagation.REQUIRED)
-    public SlotResult doPlaySlots(PlayerWallet playerWallet)  {
+    public SlotWinning doPlaySlots(PlayerWallet playerWallet)  {
         SlotResult result  = null;
         int counter = 1;
         do {
             try {
-                result = getNextSlotResult(calculateTrueWalletAmount(stellarService.getAvailableAmountInSlotsWallet()),playerWallet);
+                result = getNextSlotResult(stellarService.getAvailableAmountInSlotsWallet(),playerWallet);
             } catch (IOException e2) {
                 if(counter <= 5) { //retry 5 times if horizon is being a bitch again...
                     log.warn("IOException when fetching wallet for playing slots, retrying " + counter + " time");
@@ -63,8 +64,9 @@ public class SlotService {
                 }
             }
         } while (result == null);
-        playerWalletService.registerPlayerWinnings(playerWallet.getPublicKey(), result.getAmount());
-        return result;
+        SlotWinning winning =  playerWalletService.registerPlayerWinnings(playerWallet.getPublicKey(), result.getAmount());
+        winning.setSlotFollowNumber(result.getFollowNumber());
+        return winning;
     }
 
     private SlotResult getNextSlotResult(double inGameWallet, PlayerWallet playerWallet) {
@@ -95,6 +97,7 @@ public class SlotService {
         if(outStandingBalance != null) {
             finalAmount -= outStandingBalance;
         }
+        log.info("Final balance: " + finalAmount);
         return finalAmount;
     }
 

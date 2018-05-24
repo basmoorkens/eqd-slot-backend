@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @MappedSuperclass
-public class PlayerWalletTransaction implements Serializable {
+public class PlayerWalletStellarTransaction implements Serializable {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -39,23 +39,23 @@ public class PlayerWalletTransaction implements Serializable {
         this.blockchainHash = blockchainHash;
     }
 
-    public static IncomingPlayerWalletTransaction buildIncoming(final double amount, final String publicKey, final String blockchainHash) {
-        IncomingPlayerWalletTransaction playerWalletTransaction = new IncomingPlayerWalletTransaction();
+    public static IncomingPlayerWalletStellarTransaction buildIncoming(final double amount, final String publicKey, final String blockchainHash) {
+        IncomingPlayerWalletStellarTransaction playerWalletTransaction = new IncomingPlayerWalletStellarTransaction();
         fillPlayerWalletTransactionCommonProperties(playerWalletTransaction,amount,publicKey);
         playerWalletTransaction.setBlockchainHash(blockchainHash);
         return playerWalletTransaction;
     }
 
-    private static void fillPlayerWalletTransactionCommonProperties(PlayerWalletTransaction playerWalletTransaction, final double amount, final String publicKey) {
-        playerWalletTransaction.setAmount(amount);
-        playerWalletTransaction.setCreatedDateTime(new Date());
-        playerWalletTransaction.setTransactionStatus(TransactionStatus.NEW);
-        playerWalletTransaction.setPublicKey(publicKey);
-        playerWalletTransaction.setStatusReason("Created new Transaction");
+    private static void fillPlayerWalletTransactionCommonProperties(PlayerWalletStellarTransaction playerWalletStellarTransaction, final double amount, final String publicKey) {
+        playerWalletStellarTransaction.setAmount(amount);
+        playerWalletStellarTransaction.setCreatedDateTime(new Date());
+        playerWalletStellarTransaction.setTransactionStatus(TransactionStatus.NEW);
+        playerWalletStellarTransaction.setPublicKey(publicKey);
+        playerWalletStellarTransaction.setStatusReason("Created new Transaction");
     }
 
-    public static OutgoingPlayerWalletTransaction buildOutgoing(final double amount, final String publicKey) {
-        OutgoingPlayerWalletTransaction playerWalletTransaction = new OutgoingPlayerWalletTransaction();
+    public static OutgoingPlayerWalletStellarTransaction buildOutgoing(final double amount, final String publicKey) {
+        OutgoingPlayerWalletStellarTransaction playerWalletTransaction = new OutgoingPlayerWalletStellarTransaction();
         fillPlayerWalletTransactionCommonProperties(playerWalletTransaction,amount,publicKey);
         return playerWalletTransaction;
     }

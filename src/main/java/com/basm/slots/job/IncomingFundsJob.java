@@ -1,6 +1,6 @@
 package com.basm.slots.job;
 
-import com.basm.slots.model.IncomingPlayerWalletTransaction;
+import com.basm.slots.model.IncomingPlayerWalletStellarTransaction;
 import com.basm.slots.model.PlayerWallet;
 import com.basm.slots.model.StatefulConfiguration;
 import com.basm.slots.repository.IncomingPlayerWalletTransactionRepository;
@@ -41,10 +41,10 @@ public class IncomingFundsJob {
     log.info("Started scanning HORIZON for incoming transactions");
     long startTime = System.currentTimeMillis();
     StatefulConfiguration config = statefulConfigurationRepository.findByName("production");
-    List<IncomingPlayerWalletTransaction> foundTransactions = new ArrayList<>();
+    List<IncomingPlayerWalletStellarTransaction> foundTransactions = new ArrayList<>();
     try {
          foundTransactions = stellarService.scanForUnprocessedIncomingPayments(config);
-        for(IncomingPlayerWalletTransaction tx : foundTransactions) {
+        for(IncomingPlayerWalletStellarTransaction tx : foundTransactions) {
             tx = incomingPlayerWalletTransactionRepository.save(tx);
             log.info("Inserted incoming transaction with ID[" + tx.getId() + "] with TX hash " + tx.getBlockchainHash());
         }
@@ -60,14 +60,14 @@ public class IncomingFundsJob {
     public void processNewIncomingTransactions() {
         log.info("Started processing NEW incoming transactions in database");
         long startTime = System.currentTimeMillis();
-        List<IncomingPlayerWalletTransaction> incomingPlayerWalletTransactions = incomingPlayerWalletTransactionRepository.findUnprocessedIncomingTransactions(new PageRequest(0,200));
-        for(IncomingPlayerWalletTransaction txIn : incomingPlayerWalletTransactions) {
+        List<IncomingPlayerWalletStellarTransaction> incomingPlayerWalletStellarTransactions = incomingPlayerWalletTransactionRepository.findUnprocessedIncomingTransactions(new PageRequest(0,200));
+        for(IncomingPlayerWalletStellarTransaction txIn : incomingPlayerWalletStellarTransactions) {
             processIncomingTransaction(txIn);
         }
-        log.info("Processed " + incomingPlayerWalletTransactions.size() + " incoming transactions in " + (System.currentTimeMillis() - startTime) + " ms");
+        log.info("Processed " + incomingPlayerWalletStellarTransactions.size() + " incoming transactions in " + (System.currentTimeMillis() - startTime) + " ms");
     }
 
-    private void processIncomingTransaction(IncomingPlayerWalletTransaction txIn) {
+    private void processIncomingTransaction(IncomingPlayerWalletStellarTransaction txIn) {
         try {
             txIn.markProcessing();
             PlayerWallet wallet = playerWalletRepository.findByPublicKey(txIn.getPublicKey());
@@ -90,12 +90,12 @@ public class IncomingFundsJob {
     public void skipDuplicateIncomingTransactions() {
         log.info("Checking for duplicate incoming transactions");
         long startTime = System.currentTimeMillis();
-        List<IncomingPlayerWalletTransaction> incomingPlayerWalletTransactions = incomingPlayerWalletTransactionRepository.getDuplicateIncomingTransactions(new PageRequest(0, 100));
-        for(IncomingPlayerWalletTransaction duplicateTx : incomingPlayerWalletTransactions) {
+        List<IncomingPlayerWalletStellarTransaction> incomingPlayerWalletStellarTransactions = incomingPlayerWalletTransactionRepository.getDuplicateIncomingTransactions(new PageRequest(0, 100));
+        for(IncomingPlayerWalletStellarTransaction duplicateTx : incomingPlayerWalletStellarTransactions) {
             duplicateTx.markProcessing();
             duplicateTx.markAsSkipped("Skipped processing as an incoming TX with this blockchainhash was already processed");
         }
-        incomingPlayerWalletTransactionRepository.saveAll(incomingPlayerWalletTransactions);
-        log.info("Set " + incomingPlayerWalletTransactions.size() + " incoming transactions to SKIPPED in " + (System.currentTimeMillis() - startTime) + " ms");
+        incomingPlayerWalletTransactionRepository.saveAll(incomingPlayerWalletStellarTransactions);
+        log.info("Set " + incomingPlayerWalletStellarTransactions.size() + " incoming transactions to SKIPPED in " + (System.currentTimeMillis() - startTime) + " ms");
     }
 }

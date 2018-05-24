@@ -1,15 +1,15 @@
 package com.basm.slots.repository;
 
-import com.basm.slots.model.IncomingPlayerWalletTransaction;
+import com.basm.slots.model.IncomingPlayerWalletStellarTransaction;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface IncomingPlayerWalletTransactionRepository extends CrudRepository<IncomingPlayerWalletTransaction, Long> {
+public interface IncomingPlayerWalletTransactionRepository extends CrudRepository<IncomingPlayerWalletStellarTransaction, Long> {
 
-    @Query("SELECT t.pagingToken FROM IncomingPlayerWalletTransaction t where t.id = ( SELECT MAX(x.id) from IncomingPlayerWalletTransaction x)")
+    @Query("SELECT t.pagingToken FROM IncomingPlayerWalletStellarTransaction t where t.id = ( SELECT MAX(x.id) from IncomingPlayerWalletStellarTransaction x)")
     public String findLatestScannedPagingToken();
 
     /**
@@ -18,20 +18,20 @@ public interface IncomingPlayerWalletTransactionRepository extends CrudRepositor
      * @param pageable  The pageable
      * @return          List of incoming TX to process.
      */
-    @Query("SELECT t FROM IncomingPlayerWalletTransaction t where t.transactionStatus = com.basm.slots.model.TransactionStatus.NEW " +
+    @Query("SELECT t FROM IncomingPlayerWalletStellarTransaction t where t.transactionStatus = com.basm.slots.model.TransactionStatus.NEW " +
             "AND NOT EXISTS (" +
-                "SELECT t2 FROM IncomingPlayerWalletTransaction t2 where t.blockchainHash = t2.blockchainHash " +
+                "SELECT t2 FROM IncomingPlayerWalletStellarTransaction t2 where t.blockchainHash = t2.blockchainHash " +
                 "AND t2.transactionStatus = com.basm.slots.model.TransactionStatus.DONE" +
             ")")
-    public List<IncomingPlayerWalletTransaction> findUnprocessedIncomingTransactions(Pageable pageable);
+    public List<IncomingPlayerWalletStellarTransaction> findUnprocessedIncomingTransactions(Pageable pageable);
 
-    @Query("SELECT t FROM IncomingPlayerWalletTransaction t where t.transactionStatus = com.basm.slots.model.TransactionStatus.NEW " +
+    @Query("SELECT t FROM IncomingPlayerWalletStellarTransaction t where t.transactionStatus = com.basm.slots.model.TransactionStatus.NEW " +
             "AND EXISTS (" +
-            "SELECT t2 FROM IncomingPlayerWalletTransaction t2 where t.blockchainHash = t2.blockchainHash " +
+            "SELECT t2 FROM IncomingPlayerWalletStellarTransaction t2 where t.blockchainHash = t2.blockchainHash " +
             "AND t2.transactionStatus = com.basm.slots.model.TransactionStatus.DONE" +
             ")")
-    public List<IncomingPlayerWalletTransaction> getDuplicateIncomingTransactions(Pageable pageable);
+    public List<IncomingPlayerWalletStellarTransaction> getDuplicateIncomingTransactions(Pageable pageable);
 
-    @Query("SELECT coalesce(SUM(t.amount), 0) FROM IncomingPlayerWalletTransaction t where t.transactionStatus NOT IN (com.basm.slots.model.TransactionStatus.DONE) ")
+    @Query("SELECT coalesce(SUM(t.amount), 0) FROM IncomingPlayerWalletStellarTransaction t where t.transactionStatus NOT IN (com.basm.slots.model.TransactionStatus.DONE) ")
     public Double findUnprocessedIncomingAmountToPay();
 }
