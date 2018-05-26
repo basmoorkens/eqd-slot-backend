@@ -60,7 +60,7 @@ public class SlotsController {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @RequestMapping(value = "/playslots", method =  RequestMethod.POST)
+    @RequestMapping(value = "/payout", method =  RequestMethod.POST)
     public Payout payout(@RequestParam(value="publicKey") final String publicKey, final double amount) throws Exception {
         log.info("Payout request for " + publicKey + " with amount " + amount);
         OutgoingPlayerWalletStellarTransaction tx = playerWalletService.createPayout(publicKey, amount);
