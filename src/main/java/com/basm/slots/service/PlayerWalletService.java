@@ -66,7 +66,7 @@ public class PlayerWalletService {
     @Transactional(propagation = Propagation.REQUIRED)
     public OutgoingPlayerWalletStellarTransaction createPayout(final String publicKey, final double amount) {
         PlayerWallet playerWallet = findPlayerWalletByPublicKey(publicKey);
-        if(playerWallet.getBalance() < amount) {
+        if(playerWallet.getBalance() < amount || amount < 0) {
             throw new RuntimeException("You don't have sufficient funds in your wallet to withdraw " + amount);
         }
         OutgoingPlayerWalletStellarTransaction transaction = OutgoingPlayerWalletStellarTransaction.buildOutgoing(amount, publicKey);
