@@ -77,7 +77,7 @@ public class SlotService {
 
     protected SlotResult getNextSlotResult(double inGameWallet, PlayerWallet playerWallet) {
         double finalAmount = calculateTrueWalletAmount(inGameWallet);
-        if(playerWallet.isFirstTimer()) {
+        if(finalAmount > slotResultFactory.getResultX10().getAmount() && playerWallet.isFirstTimer()) {
             playerWallet.setFirstTimer(false);
             playerWalletService.update(playerWallet);
             return  slotResultFactory.getResultX10();
