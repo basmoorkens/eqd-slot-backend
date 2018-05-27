@@ -18,6 +18,8 @@ public class SlotWinning {
 
     private double amount;
 
+    private double wager;
+
     @ManyToOne
     @JoinColumn(name = "playerWalletId")
     private PlayerWallet playerWallet;
@@ -25,10 +27,11 @@ public class SlotWinning {
     @Transient
     private double slotFollowNumber;
 
-    public static SlotWinning createNewWinning(double amount, final PlayerWallet playerWallet) {
+    public static SlotWinning createNewWinning(double amount, final PlayerWallet playerWallet, double wager) {
         SlotWinning winning = new SlotWinning();
         winning.setAmount(amount);
         winning.setCreatedDate(new Date());
+        winning.wager = wager;
         winning.setPlayerWallet(playerWallet);
         return winning;
     }
@@ -79,5 +82,13 @@ public class SlotWinning {
 
     public void setSlotFollowNumber(double slotFollowNumber) {
         this.slotFollowNumber = slotFollowNumber;
+    }
+
+    public double getWager() {
+        return wager;
+    }
+
+    public void setWager(double wager) {
+        this.wager = wager;
     }
 }

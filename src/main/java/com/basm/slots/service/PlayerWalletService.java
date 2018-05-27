@@ -49,7 +49,7 @@ public class PlayerWalletService {
         PlayerWallet playerWallet = findPlayerWalletByPublicKey(publicKey);
         double amountToAddToPlayerWallet = amount - slotsProperties.getAmountToSpin();
         playerWallet.setBalance(playerWallet.getBalance() + amountToAddToPlayerWallet);
-        SlotWinning winning = SlotWinning.createNewWinning(amount, playerWallet);
+        SlotWinning winning = SlotWinning.createNewWinning(amount, playerWallet, slotsProperties.getAmountToSpin());
         slotWinningRepository.save(winning);
         playerWalletRepository.save(playerWallet);
         return winning;

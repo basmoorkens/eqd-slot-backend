@@ -9,14 +9,15 @@ import java.util.List;
 public class SlotResultFactory {
 
 
-    private SlotResult resultX01, resultX1, resultX5, resultX10, resultX50;
+    private SlotResult resultX01, resultX1, resultX5, resultX10, resultX50, resultX500;
 
     public  SlotResultFactory() {
-        resultX01 = new SlotResult(10, 1,0);
+        resultX01 = new SlotResult(0, 1,0);
         resultX1 = new SlotResult(100, 7,1);
-        resultX5 = new SlotResult(500, 16,2);
-        resultX10 = new SlotResult(1000, 25,3);
-        resultX50 = new SlotResult(5000, 80,4);
+        resultX5 = new SlotResult(500, 17,2);
+        resultX10 = new SlotResult(1000, 45,3);
+        resultX50 = new SlotResult(5000, 125,4);
+        resultX500 = new SlotResult(50000, 1000,5);
     }
 
     public List<SlotResult> getSlotResults() {
@@ -47,5 +48,9 @@ public class SlotResultFactory {
 
     public SlotResult getResultX50() {
         return resultX50;
+    }
+
+    public SlotResult getResultX500() {
+        return resultX500;
     }
 }
