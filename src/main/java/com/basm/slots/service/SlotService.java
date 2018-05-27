@@ -111,7 +111,7 @@ public class SlotService {
         if(outStandingBalance != null) {
             finalAmount -= outStandingBalance;
         }
-        log.info("Final balance: " + finalAmount);
+        log.info("Final balance in game wallet: " + finalAmount);
         return finalAmount;
     }
 

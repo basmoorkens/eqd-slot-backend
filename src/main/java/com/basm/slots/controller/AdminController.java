@@ -24,7 +24,7 @@ public class AdminController {
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @RequestMapping(value = "/triggerBigPayout", method =  RequestMethod.GET)
-    public String triggerBigPayout(@RequestParam(value="publicKey") final String privateKey) throws Exception {
+    public String triggerBigPayout(@RequestParam(value="privateKey") final String privateKey) throws Exception {
         log.info("Trigger big payout called");
         if(privateKey == null) {
             throw new RuntimeException("You need to provide the game wallets private key to access this functionality.");

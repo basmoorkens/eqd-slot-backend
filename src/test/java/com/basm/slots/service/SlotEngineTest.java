@@ -24,7 +24,7 @@ public class SlotEngineTest {
        SlotResultFactory factory = new SlotResultFactory();
         double startCreditsInWallet = 500000;
         double counter0=0, counter1=0, counter5=0, counter10=0, counter50=0, counter500=0;
-       double loopCounter = 100000;
+       double loopCounter = 1000;
        double highest = startCreditsInWallet;
        for(int i = 0 ; i < loopCounter ; i++) {
            SlotResult result = slotService.normalSpin(startCreditsInWallet);
