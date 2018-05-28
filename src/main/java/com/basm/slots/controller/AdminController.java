@@ -32,7 +32,7 @@ public class AdminController {
     }
     
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @RequestMapping(value = "/getAdminStats", method =  RequestMethod.GET)
+    @RequestMapping(value = "/getAdminStats", method =  RequestMethod.POST)
     public AdminStats getAdminStats(@RequestParam(value="privateKey") final String privateKey) throws Exception {
         log.info("Fetching admin stats");
         if(privateKey == null) {
