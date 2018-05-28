@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = { "http://localhost" }, maxAge = 3000)
 public class AdminController {
 
     private final Logger log = LoggerFactory.getLogger(AdminController.class);

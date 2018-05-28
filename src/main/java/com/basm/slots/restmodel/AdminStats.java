@@ -6,13 +6,19 @@ import java.util.List;
 public class AdminStats {
 
 	private double amountInWallet;
-	
+
+	private double actualAmountInWallet;
+
 	private List<PlayerWalletInfo> playerWallets;
 	
 	private boolean bigPayoutActive;
 
 	private int totalSpins;
-	
+
+    private List<SlotWinningStatistic> statsSinceLastBigWin;
+
+    private double resultsSinceLastBigWin;
+
 	public boolean isBigPayoutActive() {
 		return bigPayoutActive;
 	}
@@ -51,7 +57,30 @@ public class AdminStats {
 	public void setTotalSpins(int totalSpins) {
 		this.totalSpins = totalSpins;
 	}
-	
-	
-	
+
+	public void setActualAmountInWallet(double amountToSet) {
+	    this.actualAmountInWallet = amountToSet;
+    }
+
+    public double getActualAmountInWallet() {
+        return actualAmountInWallet;
+    }
+
+    public List<SlotWinningStatistic> getStatsSinceLastBigWin() {
+        return statsSinceLastBigWin;
+    }
+
+    public void setStatsSinceLastBigWin(List<SlotWinningStatistic> statsSinceLastBigWin) {
+        this.statsSinceLastBigWin = statsSinceLastBigWin;
+    }
+
+
+    public double getResultsSinceLastBigWin() {
+        return resultsSinceLastBigWin;
+    }
+
+    public void setResultsSinceLastBigWin(double resultsSinceLastBigWin) {
+        this.resultsSinceLastBigWin = resultsSinceLastBigWin;
+    }
+
 }

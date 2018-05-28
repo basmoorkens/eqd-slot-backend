@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import com.basm.slots.restmodel.SlotWinningStatistic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,19 +72,32 @@ public class AdminService {
         	try {
     			adminStats.setAmountInWallet(stellarService.getAvailableAmountInSlotsWallet());
     			List<PlayerWallet> activeWallets = playerWalletService.findPlayerWalletsWithBalanceGreaterThen0();
+    			double actualAmountInWallet = adminStats.getAmountInWallet();
     			for(PlayerWallet pw : activeWallets) { 
     				adminStats.addPlayerWalletInfo(new PlayerWalletInfo(pw.getPublicKey(), pw.getBalance()));
+    				actualAmountInWallet -= pw.getBalance();
     			}
+    			adminStats.setActualAmountInWallet(actualAmountInWallet);
     			adminStats.setTotalSpins(slotWinningRepository.findTotalSpins());
     			SlotWinning lastBigWin = slotWinningRepository.findLastBigwin(slotResultFactory.getResultX500().getAmount());
-    			Object[] statsSinceLastBigWin = slotWinningRepository.findStatsSinceLastBigSpin(lastBigWin.getId());
-    			
+    			long idToStartSearch = 0l;
+    			if(lastBigWin != null) {
+                    lastBigWin.getId();
+                }
+    			List<SlotWinningStatistic> stats = slotWinningRepository.findStatsSinceLastBigSpin(idToStartSearch);
+                adminStats.setStatsSinceLastBigWin(stats);
+                double resultsSinceLastBigWin = 0d;
+                for(SlotWinningStatistic s : stats) {
+                    resultsSinceLastBigWin += slotsProperties.getAmountToSpin();
+                    resultsSinceLastBigWin -= (s.getCount() * s.getPrice());
+                }
+                adminStats.setResultsSinceLastBigWin(resultsSinceLastBigWin);
     		} catch (IOException e) {
     			log.error("Error accessing the horizon servers");
     		}
         	return adminStats;
     	} else {
-    		log.warn("Potential threat detected, invalid private key for trigger big win");
+    		log.warn("Potential threat detected, invalid private key for fetching admin stats");
             throw new RuntimeException("Invalid private key");
     	}
     }

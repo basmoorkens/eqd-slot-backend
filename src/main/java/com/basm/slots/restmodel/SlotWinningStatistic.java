@@ -2,9 +2,14 @@ package com.basm.slots.restmodel;
 
 public class SlotWinningStatistic {
 
-	private int count;
+	private long count;
 	
 	private double price;
+
+	public SlotWinningStatistic(final long count, final double price) {
+		this.count = count;
+		this.price = price;
+	}
 
 	public double getPrice() {
 		return price;
@@ -14,11 +19,11 @@ public class SlotWinningStatistic {
 		this.price = price;
 	}
 
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
 
-	public void setCount(int count) {
+	public void setCount(long count) {
 		this.count = count;
 	}
 	
