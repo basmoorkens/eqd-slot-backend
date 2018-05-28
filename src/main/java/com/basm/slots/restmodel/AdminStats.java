@@ -11,6 +11,7 @@ public class AdminStats {
 	
 	private boolean bigPayoutActive;
 
+	private int totalSpins;
 	
 	public boolean isBigPayoutActive() {
 		return bigPayoutActive;
@@ -41,6 +42,14 @@ public class AdminStats {
 
 	public void setPlayerWallets(List<PlayerWalletInfo> playerWallets) {
 		this.playerWallets = playerWallets;
+	}
+
+	public int getTotalSpins() {
+		return totalSpins;
+	}
+
+	public void setTotalSpins(int totalSpins) {
+		this.totalSpins = totalSpins;
 	}
 	
 	

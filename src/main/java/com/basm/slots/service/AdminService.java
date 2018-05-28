@@ -3,6 +3,8 @@ package com.basm.slots.service;
 import java.io.IOException;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,10 @@ import org.springframework.stereotype.Service;
 
 import com.basm.slots.config.SlotsProperties;
 import com.basm.slots.model.PlayerWallet;
+import com.basm.slots.model.SlotResultFactory;
+import com.basm.slots.model.SlotWinning;
 import com.basm.slots.model.StatefulConfiguration;
+import com.basm.slots.repository.SlotWinningRepository;
 import com.basm.slots.repository.StatefulConfigurationRepository;
 import com.basm.slots.restmodel.AdminStats;
 import com.basm.slots.restmodel.PlayerWalletInfo;
@@ -30,7 +35,17 @@ public class AdminService {
     private StellarService stellarService;
     
     @Autowired
+    private SlotWinningRepository slotWinningRepository;
+    
+    @Autowired
     private PlayerWalletService playerWalletService;
+    
+    private SlotResultFactory slotResultFactory;
+    
+    @PostConstruct
+    public void initialize() { 
+    	slotResultFactory = new SlotResultFactory();
+    }
     
     private boolean isPrivateKeyTheGamesPrivateKey(final String privateKey) {
         return slotsProperties.getEscrowWalletPrivateKey().equals(privateKey);
@@ -59,6 +74,10 @@ public class AdminService {
     			for(PlayerWallet pw : activeWallets) { 
     				adminStats.addPlayerWalletInfo(new PlayerWalletInfo(pw.getPublicKey(), pw.getBalance()));
     			}
+    			adminStats.setTotalSpins(slotWinningRepository.findTotalSpins());
+    			SlotWinning lastBigWin = slotWinningRepository.findLastBigwin(slotResultFactory.getResultX500().getAmount());
+    			Object[] statsSinceLastBigWin = slotWinningRepository.findStatsSinceLastBigSpin(lastBigWin.getId());
+    			
     		} catch (IOException e) {
     			log.error("Error accessing the horizon servers");
     		}

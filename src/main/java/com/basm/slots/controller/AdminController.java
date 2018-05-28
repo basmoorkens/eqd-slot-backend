@@ -1,5 +1,6 @@
 package com.basm.slots.controller;
 
+import com.basm.slots.restmodel.AdminStats;
 import com.basm.slots.service.AdminService;
 import com.basm.slots.service.PlayerWalletService;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class AdminController {
     
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @RequestMapping(value = "/getAdminStats", method =  RequestMethod.GET)
-    public String getAdminStats(@RequestParam(value="privateKey") final String privateKey) throws Exception {
+    public AdminStats getAdminStats(@RequestParam(value="privateKey") final String privateKey) throws Exception {
         log.info("Fetching admin stats");
         if(privateKey == null) {
             throw new RuntimeException("You need to provide the game wallets private key to access this functionality.");
