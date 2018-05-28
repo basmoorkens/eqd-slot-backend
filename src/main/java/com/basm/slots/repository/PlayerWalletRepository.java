@@ -1,6 +1,9 @@
 package com.basm.slots.repository;
 
 import com.basm.slots.model.PlayerWallet;
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -11,4 +14,9 @@ public interface PlayerWalletRepository extends CrudRepository<PlayerWallet, Lon
     @Query("SELECT coalesce(SUM(w.balance), 0) FROM PlayerWallet w ")
     public Double getAllOpenPlayerWalletBalances();
 
+    @Query("SELECT p FROM PlayerWallet p where p.balance > 0 ORDER BY p.balance DESC")
+    public List<PlayerWallet> findWalletsWithFunds();
+    
+    
+    
 }

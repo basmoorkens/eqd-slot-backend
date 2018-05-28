@@ -80,4 +80,8 @@ public class PlayerWalletService {
     public PlayerWallet update(PlayerWallet playerWallet) {
         return playerWalletRepository.save(playerWallet);
     }
+    
+    public List<PlayerWallet> findPlayerWalletsWithBalanceGreaterThen0() {
+    	return playerWalletRepository.findWalletsWithFunds();
+    }
 }
