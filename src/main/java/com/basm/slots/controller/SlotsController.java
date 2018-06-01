@@ -50,7 +50,7 @@ public class SlotsController {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @RequestMapping(value = "/playslots", method =  RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value = "/playSlots", method =  RequestMethod.POST, produces = "application/json")
     public SpinResultInfo playSlots(@RequestParam(value="publicKey") final String publicKey) throws Exception {
         log.info("Spinning slot for " + publicKey);
         SlotWinning winning = slotsService.playSlots(publicKey);
