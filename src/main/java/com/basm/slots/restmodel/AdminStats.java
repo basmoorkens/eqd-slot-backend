@@ -1,22 +1,31 @@
 package com.basm.slots.restmodel;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class AdminStats {
 
+	@JsonProperty("amountInWallet")
 	private double amountInWallet;
 
+	@JsonProperty("actualAmountInWallet")
 	private double actualAmountInWallet;
 
+	@JsonProperty("playerWallets")
 	private List<PlayerWalletInfo> playerWallets;
-	
+
+	@JsonProperty("bigPayoutActive")
 	private boolean bigPayoutActive;
 
+	@JsonProperty("totalSpins")
 	private int totalSpins;
 
+	@JsonProperty("statsSinceLastBigWin")
     private List<SlotWinningStatistic> statsSinceLastBigWin;
 
+	@JsonProperty("resultsSinceLastBigWin")
     private double resultsSinceLastBigWin;
 
 	public boolean isBigPayoutActive() {

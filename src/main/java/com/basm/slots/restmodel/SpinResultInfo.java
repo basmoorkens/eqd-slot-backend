@@ -1,17 +1,22 @@
 package com.basm.slots.restmodel;
 
 import com.basm.slots.model.SlotWinning;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.text.SimpleDateFormat;
 
 public class SpinResultInfo {
 
+    @JsonProperty("balance")
     private double balance;
 
+    @JsonProperty("winning")
     private double winning;
 
+    @JsonProperty("spinDateTime")
     private String spinDateTime;
 
+    @JsonProperty("spinFollowNumber")
     private double spinFollowNumber;
 
     public SpinResultInfo(SlotWinning winning) {

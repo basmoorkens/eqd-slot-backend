@@ -1,6 +1,7 @@
 package com.basm.slots.controller;
 
 import com.basm.slots.restmodel.AdminStats;
+import com.basm.slots.restmodel.BigPayoutResponse;
 import com.basm.slots.service.AdminService;
 import com.basm.slots.service.PlayerWalletService;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ public class AdminController {
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @RequestMapping(value = "/triggerBigPayout", method =  RequestMethod.GET, produces = "application/json")
-    public String triggerBigPayout(@RequestParam(value="privateKey") final String privateKey) throws Exception {
+    public BigPayoutResponse triggerBigPayout(@RequestParam(value="privateKey") final String privateKey) throws Exception {
         log.info("Trigger big payout called");
         if(privateKey == null) {
             throw new RuntimeException("You need to provide the game wallets private key to access this functionality.");

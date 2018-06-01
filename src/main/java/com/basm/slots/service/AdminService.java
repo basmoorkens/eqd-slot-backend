@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import com.basm.slots.restmodel.BigPayoutResponse;
 import com.basm.slots.restmodel.SlotWinningStatistic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,14 +53,14 @@ public class AdminService {
         return slotsProperties.getEscrowWalletPrivateKey().equals(privateKey);
     }
 
-    public String setupBigPayoutForNextSpin(final String privateKey) {
+    public BigPayoutResponse setupBigPayoutForNextSpin(final String privateKey) {
         if(isPrivateKeyTheGamesPrivateKey(privateKey)) {
             StatefulConfiguration config = statefulConfigurationRepository.findByName("production");
             config.setBigPayout(true);
             statefulConfigurationRepository.save(config);
             String message = "The next spin will be a big win.";
             log.info(message);
-            return message;
+            return new BigPayoutResponse(message);
         } else {
             log.warn("Potential threat detected, invalid private key for trigger big win");
             throw new RuntimeException("Invalid private key");

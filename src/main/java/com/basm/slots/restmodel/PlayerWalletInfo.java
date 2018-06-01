@@ -1,13 +1,17 @@
 package com.basm.slots.restmodel;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerWalletInfo implements Serializable {
 
+    @JsonProperty("amount")
     private double amount;
 
+    @JsonProperty("publicKey")
     private String publicKey;
 
     private List<PlayerWalletInfoWinning> lastWinnings;

@@ -1,9 +1,13 @@
 package com.basm.slots.restmodel;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Payout {
 
+    @JsonProperty("publicKey")
     private String publicKey;
 
+    @JsonProperty("amount")
     private double amount;
 
     public Payout(final String publicKey, final double amount){
