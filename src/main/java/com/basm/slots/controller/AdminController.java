@@ -21,7 +21,7 @@ public class AdminController {
 
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @RequestMapping(value = "/triggerBigPayout", method =  RequestMethod.GET)
+    @RequestMapping(value = "/triggerBigPayout", method =  RequestMethod.GET, produces = "application/json")
     public String triggerBigPayout(@RequestParam(value="privateKey") final String privateKey) throws Exception {
         log.info("Trigger big payout called");
         if(privateKey == null) {
@@ -31,7 +31,7 @@ public class AdminController {
     }
     
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @RequestMapping(value = "/getAdminStats", method =  RequestMethod.POST)
+    @RequestMapping(value = "/getAdminStats", method =  RequestMethod.POST,  produces = "application/json")
     public AdminStats getAdminStats(@RequestParam(value="privateKey") final String privateKey) throws Exception {
         log.info("Fetching admin stats");
         if(privateKey == null) {

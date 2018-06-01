@@ -30,7 +30,7 @@ public class SlotsController {
     private SlotService slotsService;
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @RequestMapping(value = "/loginPublicKey", method = RequestMethod.POST)
+    @RequestMapping(value = "/loginPublicKey", method = RequestMethod.POST, produces = "application/json")
     public PlayerWalletInfo loginPublicKey(@RequestParam(value="publicKey") final String publicKey) {
         log.info("Logging in " + publicKey);
         PlayerWallet playerWallet = playerWalletService.findPlayerWalletByPublicKey(publicKey);
@@ -50,7 +50,7 @@ public class SlotsController {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @RequestMapping(value = "/playslots", method =  RequestMethod.POST)
+    @RequestMapping(value = "/playslots", method =  RequestMethod.POST, produces = "application/json")
     public SpinResultInfo playSlots(@RequestParam(value="publicKey") final String publicKey) throws Exception {
         log.info("Spinning slot for " + publicKey);
         SlotWinning winning = slotsService.playSlots(publicKey);
@@ -60,7 +60,7 @@ public class SlotsController {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @RequestMapping(value = "/payout", method =  RequestMethod.POST)
+    @RequestMapping(value = "/payout", method =  RequestMethod.POST, produces = "application/json")
     public Payout payout(@RequestParam(value="publicKey") final String publicKey, final double amount) throws Exception {
         log.info("Payout request for " + publicKey + " with amount " + amount);
         OutgoingPlayerWalletStellarTransaction tx = playerWalletService.createPayout(publicKey, amount);
