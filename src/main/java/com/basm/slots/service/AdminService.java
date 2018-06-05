@@ -67,12 +67,6 @@ public class AdminService {
                 }
     			List<SlotWinningStatistic> stats = slotWinningRepository.findStatsSinceLastBigSpin(idToStartSearch);
                 adminStats.setStatsSinceLastBigWin(stats);
-                double resultsSinceLastBigWin = 0d;
-                for(SlotWinningStatistic s : stats) {
-                    resultsSinceLastBigWin += slotsProperties.getAmountToSpin();
-                    resultsSinceLastBigWin -= (s.getCount() * s.getPrice());
-                }
-                adminStats.setResultsSinceLastBigWin(resultsSinceLastBigWin);
     		} catch (IOException e) {
     			log.error("Error accessing the horizon servers");
     		}

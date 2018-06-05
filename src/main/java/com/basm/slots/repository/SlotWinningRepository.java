@@ -22,7 +22,7 @@ public interface SlotWinningRepository extends CrudRepository<SlotWinning, Long>
     @Query("SELECT w2 FROM SlotWinning w2 WHERE w2.id = ( SELECT MAX(w.id) FROM SlotWinning w WHERE w.amount = :bigAmount)")
     public SlotWinning findLastBigwin(@Param("bigAmount") final double bigAmount);
     
-    @Query("SELECT new com.basm.slots.restmodel.SlotWinningStatistic(COUNT(w), w.amount) FROM SlotWinning w WHERE w.id > :startId GROUP BY w.amount")
+    @Query("SELECT new com.basm.slots.restmodel.SlotWinningStatistic(COUNT(w), w.amount, w.wager) FROM SlotWinning w WHERE w.id > :startId GROUP BY w.amount")
     public List<SlotWinningStatistic> findStatsSinceLastBigSpin(@Param("startId") final long startId);
     
 }
