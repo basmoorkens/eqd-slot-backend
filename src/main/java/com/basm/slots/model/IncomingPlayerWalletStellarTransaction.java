@@ -7,7 +7,8 @@ import javax.persistence.Table;
 @Table(name="incoming_player_wallet_transaction")
 public class IncomingPlayerWalletStellarTransaction extends PlayerWalletStellarTransaction {
 
-    private String pagingToken;
+	private static final long serialVersionUID = -6966434285783806399L;
+	private String pagingToken;
 
     public String getPagingToken() {
         return pagingToken;

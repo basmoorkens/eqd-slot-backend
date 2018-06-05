@@ -7,5 +7,7 @@ import javax.persistence.Table;
 @Table(name="outgoing_player_wallet_transaction")
 public class OutgoingPlayerWalletStellarTransaction extends PlayerWalletStellarTransaction {
 
+	private static final long serialVersionUID = -2813428433019381333L;
+
 
 }

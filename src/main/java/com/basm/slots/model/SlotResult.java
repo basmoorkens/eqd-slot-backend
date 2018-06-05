@@ -5,6 +5,8 @@ import java.io.Serializable;
 
 public class SlotResult implements Serializable {
 
+	private static final long serialVersionUID = -3500910872259149432L;
+
 	private double followNumber;
 
 	private double amount;

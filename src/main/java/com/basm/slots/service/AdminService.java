@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import com.basm.slots.restmodel.BigPayoutResponse;
 import com.basm.slots.restmodel.SlotWinningStatistic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +15,7 @@ import com.basm.slots.config.SlotsProperties;
 import com.basm.slots.model.PlayerWallet;
 import com.basm.slots.model.SlotResultFactory;
 import com.basm.slots.model.SlotWinning;
-import com.basm.slots.model.StatefulConfiguration;
 import com.basm.slots.repository.SlotWinningRepository;
-import com.basm.slots.repository.StatefulConfigurationRepository;
 import com.basm.slots.restmodel.AdminStats;
 import com.basm.slots.restmodel.PlayerWalletInfo;
 
@@ -26,9 +23,6 @@ import com.basm.slots.restmodel.PlayerWalletInfo;
 public class AdminService {
 
     private final Logger log = LoggerFactory.getLogger(AdminService.class);
-
-    @Autowired
-    private StatefulConfigurationRepository statefulConfigurationRepository;
 
     @Autowired
     private SlotsProperties slotsProperties;
@@ -53,20 +47,6 @@ public class AdminService {
         return slotsProperties.getEscrowWalletPrivateKey().equals(privateKey);
     }
 
-    public BigPayoutResponse setupBigPayoutForNextSpin(final String privateKey) {
-        if(isPrivateKeyTheGamesPrivateKey(privateKey)) {
-            StatefulConfiguration config = statefulConfigurationRepository.findByName("production");
-            config.setBigPayout(true);
-            statefulConfigurationRepository.save(config);
-            String message = "The next spin will be a big win.";
-            log.info(message);
-            return new BigPayoutResponse(message);
-        } else {
-            log.warn("Potential threat detected, invalid private key for trigger big win");
-            throw new RuntimeException("Invalid private key");
-        }
-    }
-    
     public AdminStats getAdminStats(final String privateKey) {
     	if(isPrivateKeyTheGamesPrivateKey(privateKey)) {
     		AdminStats adminStats = new AdminStats();

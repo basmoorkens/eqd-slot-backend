@@ -1,8 +1,6 @@
 package com.basm.slots.service;
 
-import com.basm.slots.job.IncomingFundsJob;
 import com.basm.slots.model.*;
-import com.basm.slots.repository.StatefulConfigurationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +21,6 @@ public class SlotService {
 
     @Autowired
     private PlayerWalletService playerWalletService;
-
-    @Autowired
-    private StatefulConfigurationRepository statefulConfigurationRepository;
 
     private Random randomGenerator = new Random();
 
@@ -53,19 +48,7 @@ public class SlotService {
     public SlotWinning doPlaySlots(PlayerWallet playerWallet)  {
         try {
             SlotResult result = null;
-            int counter = 1;
-            do {
-                try {
-                    result = getNextSlotResult(stellarService.getAvailableAmountInSlotsWallet(), playerWallet);
-                } catch (IOException e2) {
-                    if (counter <= 5) { //retry 5 times if horizon is being a bitch again...
-                        log.warn("IOException when fetching wallet for playing slots, retrying " + counter + " time");
-                    } else {
-                        log.error("IOexception fetching wallet balance", e2);
-                        throw new RuntimeException("Stellar network currently unavailable.");
-                    }
-                }
-            } while (result == null);
+            result = calculateSlotResult(playerWallet, result);
             SlotWinning winning = playerWalletService.registerPlayerWinnings(playerWallet.getPublicKey(), result.getAmount());
             winning.setSlotFollowNumber(result.getFollowNumber());
             return winning;
@@ -75,21 +58,29 @@ public class SlotService {
         }
     }
 
+	private SlotResult calculateSlotResult(PlayerWallet playerWallet, SlotResult result) {
+		int counter = 1;
+		do {
+		    try {
+		        result = getNextSlotResult(stellarService.getAvailableAmountInSlotsWallet(), playerWallet);
+		    } catch (IOException e2) {
+		        if (counter <= 5) { //retry 5 times if horizon is being a bitch again...
+		            log.warn("IOException when fetching wallet for playing slots, retrying " + counter + " time");
+		        } else {
+		            log.error("IOexception fetching wallet balance", e2);
+		            throw new RuntimeException("Stellar network currently unavailable.");
+		        }
+		    }
+		} while (result == null);
+		return result;
+	}
+
     protected SlotResult getNextSlotResult(double inGameWallet, PlayerWallet playerWallet) {
         double finalAmount = calculateTrueWalletAmount(inGameWallet);
         if(finalAmount > slotResultFactory.getResultX10().getAmount() && playerWallet.isFirstTimer()) {
             playerWallet.setFirstTimer(false);
             playerWalletService.update(playerWallet);
             return  slotResultFactory.getResultX10();
-        }
-        StatefulConfiguration config = statefulConfigurationRepository.findByName("production");
-        if(config.isBigPayout()) {
-            if (finalAmount >= slotResultFactory.getResultX500().getAmount()) {
-                config.setBigPayout(false);
-                statefulConfigurationRepository.save(config);
-                log.info("Paying out big win");
-                return slotResultFactory.getResultX500();
-            }
         }
         return normalSpin(finalAmount);
 	}
@@ -102,7 +93,7 @@ public class SlotService {
                 }
             }
         }
-        return slotResultFactory.getResultX01();
+        return slotResultFactory.getResultX0();
     }
 
     private double calculateTrueWalletAmount(double inGameWallet) {

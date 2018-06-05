@@ -8,7 +8,9 @@ import java.util.List;
 
 public class PlayerWalletInfo implements Serializable {
 
-    @JsonProperty("amount")
+	private static final long serialVersionUID = -6863193447663447551L;
+
+	@JsonProperty("amount")
     private double amount;
 
     @JsonProperty("publicKey")

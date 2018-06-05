@@ -4,7 +4,6 @@ import com.basm.slots.config.SlotsProperties;
 import com.basm.slots.model.IncomingPlayerWalletStellarTransaction;
 import com.basm.slots.model.PlayerWalletStellarTransaction;
 import com.basm.slots.model.StatefulConfiguration;
-import com.basm.slots.repository.OutgoingPlayerWalletTransactionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +30,6 @@ public class StellarService {
 
     @Autowired
     private SlotsProperties slotsProperties;
-
-    @Autowired
-    private OutgoingPlayerWalletTransactionRepository playerWalletTransactionRepository;
 
     private Server stellarServer = new Server("https://horizon.stellar.org");
 

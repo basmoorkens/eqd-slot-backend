@@ -6,7 +6,9 @@ import java.io.Serializable;
 @Entity
 public class StatefulConfiguration implements Serializable {
 
-    @Id
+	private static final long serialVersionUID = 383036657567535276L;
+
+	@Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
@@ -16,8 +18,6 @@ public class StatefulConfiguration implements Serializable {
     private String lastPagingToken;
 
     private String name;
-
-    private boolean bigPayout;
 
     public String getLastPagingToken() {
         return lastPagingToken;
@@ -34,13 +34,4 @@ public class StatefulConfiguration implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-
-    public boolean isBigPayout() {
-        return bigPayout;
-    }
-
-    public void setBigPayout(boolean bigPayout) {
-        this.bigPayout = bigPayout;
-    }
-
 }

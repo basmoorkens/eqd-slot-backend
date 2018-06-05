@@ -4,7 +4,9 @@ import java.io.Serializable;
 
 public class PlayerWalletInfoWinning implements Serializable {
 
-    private String wonTime;
+	private static final long serialVersionUID = 7206404462965331183L;
+
+	private String wonTime;
 
     private Double amount;
 
