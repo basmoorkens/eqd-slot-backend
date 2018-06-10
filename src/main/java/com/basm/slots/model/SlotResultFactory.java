@@ -13,7 +13,7 @@ public class SlotResultFactory {
 
     public  SlotResultFactory() {
         resultX0 = new SlotResult(0, 1,0);
-        resultX1 = new SlotResult(100, 4,1);
+        resultX1 = new SlotResult(100, 5,1);
         resultX2 = new SlotResult(200, 9,2);
         resultX5 = new SlotResult(500, 25,3);
         resultX10 = new SlotResult(1000, 56,4);

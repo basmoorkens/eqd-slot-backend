@@ -33,7 +33,7 @@ public class PlayerWalletService {
     private OutgoingPlayerWalletTransactionRepository outgoingPlayerWalletTransactionRepository;
 
     public boolean hasEnoughFundsInEscrowWalletToPlay(final PlayerWallet playerWallet) {
-        return playerWallet.getBalance() > slotsProperties.getAmountToSpin();
+        return playerWallet.getBalance() >= slotsProperties.getAmountToSpin();
     }
 
     public PlayerWallet findPlayerWalletByPublicKey(final String publicKey) {
@@ -83,5 +83,13 @@ public class PlayerWalletService {
     
     public List<PlayerWallet> findPlayerWalletsWithBalanceGreaterThen0() {
     	return playerWalletRepository.findWalletsWithFunds();
+    }
+
+    public PlayerWallet getGameWallet() {
+        return playerWalletRepository.findByPublicKey(slotsProperties.getEscrowWalletPublicKey());
+    }
+
+    public PlayerWallet findByPublicKey(final String publicKey) {
+        return playerWalletRepository.findByPublicKey(publicKey);
     }
 }

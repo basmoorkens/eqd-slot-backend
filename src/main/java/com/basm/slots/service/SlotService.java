@@ -47,36 +47,19 @@ public class SlotService {
 	@Transactional(propagation = Propagation.REQUIRED)
     public SlotWinning doPlaySlots(PlayerWallet playerWallet)  {
         try {
-            SlotResult result = null;
-            result = calculateSlotResult(playerWallet, result);
+            PlayerWallet gameWallet = playerWalletService.getGameWallet();
+            SlotResult result = getNextSlotResult(gameWallet, playerWallet);
             SlotWinning winning = playerWalletService.registerPlayerWinnings(playerWallet.getPublicKey(), result.getAmount());
             winning.setSlotFollowNumber(result.getFollowNumber());
             return winning;
         } catch (Exception e) {
             log.error("An unexpected exception occurred whilst spinning", e);
-            throw new RuntimeException("An unexpected exception occurred, if this keeps happening contact the our support.");
+            throw new RuntimeException("An unexpected exception occurred, if this keeps happening contact our support.");
         }
     }
 
-	private SlotResult calculateSlotResult(PlayerWallet playerWallet, SlotResult result) {
-		int counter = 1;
-		do {
-		    try {
-		        result = getNextSlotResult(stellarService.getAvailableAmountInSlotsWallet(), playerWallet);
-		    } catch (IOException e2) {
-		        if (counter <= 5) { //retry 5 times if horizon is being a bitch again...
-		            log.warn("IOException when fetching wallet for playing slots, retrying " + counter + " time");
-		        } else {
-		            log.error("IOexception fetching wallet balance", e2);
-		            throw new RuntimeException("Stellar network currently unavailable.");
-		        }
-		    }
-		} while (result == null);
-		return result;
-	}
-
-    protected SlotResult getNextSlotResult(double inGameWallet, PlayerWallet playerWallet) {
-        double finalAmount = calculateTrueWalletAmount(inGameWallet);
+    protected SlotResult getNextSlotResult(PlayerWallet gameWallet, PlayerWallet playerWallet) {
+        double finalAmount = calculateTrueWalletAmount(gameWallet.getBalance());
         if(finalAmount > slotResultFactory.getResultX10().getAmount() && playerWallet.isFirstTimer()) {
             playerWallet.setFirstTimer(false);
             playerWalletService.update(playerWallet);

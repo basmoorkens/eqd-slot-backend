@@ -11,12 +11,10 @@ public interface PlayerWalletRepository extends CrudRepository<PlayerWallet, Lon
 
     public PlayerWallet findByPublicKey(final String publicKey);
 
-    @Query("SELECT coalesce(SUM(w.balance), 0) FROM PlayerWallet w ")
+    @Query("SELECT coalesce(SUM(w.balance), 0) FROM PlayerWallet w WHERE w.gameWallet = FALSE")
     public Double getAllOpenPlayerWalletBalances();
 
-    @Query("SELECT p FROM PlayerWallet p where p.balance > 0 ORDER BY p.balance DESC")
+    @Query("SELECT p FROM PlayerWallet p where p.balance > 0 WHERE w.gameWallet = FALSE ORDER BY p.balance DESC")
     public List<PlayerWallet> findWalletsWithFunds();
-    
-    
     
 }

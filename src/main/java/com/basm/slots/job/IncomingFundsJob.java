@@ -4,8 +4,8 @@ import com.basm.slots.model.IncomingPlayerWalletStellarTransaction;
 import com.basm.slots.model.PlayerWallet;
 import com.basm.slots.model.StatefulConfiguration;
 import com.basm.slots.repository.IncomingPlayerWalletTransactionRepository;
-import com.basm.slots.repository.PlayerWalletRepository;
 import com.basm.slots.repository.StatefulConfigurationRepository;
+import com.basm.slots.service.PlayerWalletService;
 import com.basm.slots.service.StellarService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class IncomingFundsJob {
     private IncomingPlayerWalletTransactionRepository incomingPlayerWalletTransactionRepository;
 
     @Autowired
-    private PlayerWalletRepository playerWalletRepository;
+    private PlayerWalletService playerWalletService;
 
     @Scheduled(cron = "${incomingfundsjob.cron.scan.horizon.for.new.incoming.tx}")
     public void scanForIncomingTransactions() {
@@ -56,34 +56,46 @@ public class IncomingFundsJob {
     }
 
     @Scheduled(cron = "${incomingfundsjob.cron.process.new.incoming.tx}")
-    @Transactional
     public void processNewIncomingTransactions() {
         log.info("Started processing NEW incoming transactions in database");
         long startTime = System.currentTimeMillis();
+        PlayerWallet gameWallet = playerWalletService.getGameWallet();
         List<IncomingPlayerWalletStellarTransaction> incomingPlayerWalletStellarTransactions = incomingPlayerWalletTransactionRepository.findUnprocessedIncomingTransactions(new PageRequest(0,200));
         for(IncomingPlayerWalletStellarTransaction txIn : incomingPlayerWalletStellarTransactions) {
-            processIncomingTransaction(txIn);
+            gameWallet = processIncomingTransaction(txIn, gameWallet);
         }
         log.info("Processed " + incomingPlayerWalletStellarTransactions.size() + " incoming transactions in " + (System.currentTimeMillis() - startTime) + " ms");
     }
 
-    private void processIncomingTransaction(IncomingPlayerWalletStellarTransaction txIn) {
+    @Transactional
+    public PlayerWallet processIncomingTransaction(IncomingPlayerWalletStellarTransaction txIn, PlayerWallet gameWallet) {
         try {
             txIn.markProcessing();
-            PlayerWallet wallet = playerWalletRepository.findByPublicKey(txIn.getPublicKey());
-            if(wallet == null) {
-                wallet = PlayerWallet.buildNew(txIn.getPublicKey(), txIn.getAmount());
-            } else {
-                wallet.setBalance(wallet.getBalance() + txIn.getAmount());
-            }
-            playerWalletRepository.save(wallet);
+            PlayerWallet wallet = playerWalletService.findByPublicKey(txIn.getPublicKey());
+            processPlayerWalletPart(txIn, wallet);
             txIn.markProcessed();
             incomingPlayerWalletTransactionRepository.save(txIn);
+            return processGameWalletPart(txIn, gameWallet);
         } catch (Exception e) {
             log.error("Error processing incoming TX " + txIn.getId(), e);
             txIn.markFailed("Failed to process TX, see the logs for more details");
             incomingPlayerWalletTransactionRepository.save(txIn);
+            return gameWallet;
         }
+    }
+
+    private PlayerWallet processGameWalletPart(IncomingPlayerWalletStellarTransaction txIn, PlayerWallet gameWallet) {
+        gameWallet.setBalance(gameWallet.getBalance() + txIn.getAmount());
+        return playerWalletService.update(gameWallet);
+    }
+
+    private void processPlayerWalletPart(IncomingPlayerWalletStellarTransaction txIn, PlayerWallet wallet) {
+        if(wallet == null) {
+            wallet = PlayerWallet.buildNew(txIn.getPublicKey(), txIn.getAmount());
+        } else {
+            wallet.setBalance(wallet.getBalance() + txIn.getAmount());
+        }
+        playerWalletService.update(wallet);
     }
 
     @Scheduled(cron = "${incomingfundsjob.cron.skip.duplicate.tx}")

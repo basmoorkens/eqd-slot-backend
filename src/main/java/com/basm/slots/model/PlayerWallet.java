@@ -19,12 +19,15 @@ public class PlayerWallet {
 
     private boolean firstTimer;
 
+    private boolean gameWallet;
+
     public static PlayerWallet buildNew(final String publicKey, final double balance) {
         PlayerWallet wallet = new PlayerWallet();
         wallet.setPublicKey(publicKey);
         wallet.setBalance(balance);
         wallet.setVersion(0);
         wallet.setFirstTimer(true);
+        wallet.setGameWallet(false);
         return wallet;
     }
 
@@ -66,5 +69,13 @@ public class PlayerWallet {
 
     public void setFirstTimer(boolean firstTimer) {
         this.firstTimer = firstTimer;
+    }
+
+    public boolean isGameWallet() {
+        return gameWallet;
+    }
+
+    public void setGameWallet(boolean gameWallet) {
+        this.gameWallet = gameWallet;
     }
 }
