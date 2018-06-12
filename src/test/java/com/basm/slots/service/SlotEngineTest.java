@@ -21,7 +21,7 @@ public class SlotEngineTest {
         double startCreditsInWallet = 50000;
         double counter0 = 0, counter1 = 0, counter5 = 0, counter10 = 0, counter50 = 0, counter500 = 0;
         List<Integer> longestWithoutBigWin = new ArrayList<>();
-        double loopCounter = 100000;
+        double loopCounter = 10000;
         int lastBigwin = 0;
         double highest = startCreditsInWallet;
         for (int i = 0; i < loopCounter; i++) {
