@@ -7,3 +7,7 @@ Game state is stored in a mysql database and several REST endpoints are exposed 
 In the production setup that it runs the backend is proxied by an AWS API gateway.
 
 See https://equid.co/spin-to-win/ for the result
+
+The production setup is done in following way:
+
+![alt text](https://github.com/basmoorkens/eqd-slot-backend/blob/master/eqd-slots-system-diagram.png)
